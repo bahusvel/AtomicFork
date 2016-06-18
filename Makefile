@@ -11,7 +11,7 @@ OBJ = $(SRC:.c=.o)
 
 all: atomic_fork test
 
-run: all
+run: clean all
 	./test
 
 test:
