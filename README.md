@@ -3,7 +3,7 @@ It uses fork() system call to quickly create another process (using copy-on-writ
 
 # How to use it?
 Compile it into a library (dynamic or static) for your operating system, link it with your code/binary and use as follows:
-```
+``` C
 #include "atomic_fork.h"
 
 ...
