@@ -8,12 +8,18 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define af_transaction if (af_transaction_begin())
+#define af_transaction if (!af_transaction_begin(0))
+#define af_timed(timeout) if (!af_transaction_begin(timeout))
+
+#define AF_ABORT    -1
+#define AF_TIMEOUT  -2
+#define AF_SIGNAL   -3
+#define AF_ERROR    -4
+
 
 static struct sigaction old_handler;
 
 static void af_handle_commit(int signum, siginfo_t *info, void *context){
-    printf("Transaction commited\n");
     exit(0);
 }
 
@@ -32,29 +38,37 @@ static void af_setup_term_handler(){
 	}
 }
 
-int af_transaction_begin() {
+int af_transaction_begin(int timeout) {
+    if (timeout < 0){
+        printf("Negative timeout\n");
+        exit(-1);
+    }
     af_setup_term_handler();
 
     pid_t pid = fork();
     if (pid == 0) {
         // child
-        return 1;
+        return 0;
     } else if (pid > 0){
         // parent
         int status = 0;
-        waitpid(pid, &status, 0);
+        int count = 0;
 
-        if (WIFEXITED(status)) {
-            printf("Transaction aborted gracefully\n");
-        } else if (WIFSIGNALED(status)) {
-            printf("Transaction aborted due to signal\n");
+        while (count++ < (timeout ? timeout : 1)) {
+            if (!waitpid(pid, &status, timeout ? WNOHANG : 0)){
+                sleep(1);
+                continue;
+            }
+            if (WIFEXITED(status)) return AF_ABORT;
+            if (WIFSIGNALED(status)) return AF_SIGNAL;
+            sleep(1);
         }
-
-        return 0;
+        kill(pid, SIGKILL);
+        return AF_TIMEOUT;
     } else {
         // failed
         perror("Could not fork:");
-        return 0;
+        return AF_ERROR;
     }
 }
 
