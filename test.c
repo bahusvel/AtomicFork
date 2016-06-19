@@ -5,11 +5,13 @@
 int main() {
     struct timeval  tv1, tv2;
     gettimeofday(&tv1, NULL);
-    if (transaction()){
+    af_transaction {
         gettimeofday(&tv2, NULL);
         printf ("Total time = %f microseconds\n", (double) (tv2.tv_usec - tv1.tv_usec));
+        int *bad_pointer = NULL;
+        *bad_pointer = 10;
         printf("It Works!\n");
-        transaction_rollback();
+        af_rollback();
     } else {
         printf("Aborted... cleaning up\n");
     }
