@@ -11,7 +11,7 @@ Just include the atomic_fork header file into your project and it will work.
 af_transaction {
     // this will be executed as part of the transaction
     printf("It Works!\n"); // some dodgy code goes here
-    af_commit() // or af_rollback()
+    af_commit(); // or af_rollback()
 } else {
     printf("Aborted... cleaning up\n"); // handle the failed transaction if needed
 }
