@@ -1,5 +1,5 @@
 # How does it work?
-It uses fork() system call to quickly create another process (using copy-on-write) the transaction continues in the newly created process while the parent process is halted, if the operation done in the transaction succeeds (child calls transaction_commit()) the parent is terminated while the child continues. If the transaction is aborted either by child crashing or calling transaction_rollback() the child process terminates and the parent continues skipping the transaction code.
+It uses fork() system call to quickly create another process (using copy-on-write) the transaction continues in the newly created process while the parent process is halted, if the operation done in the transaction succeeds (child calls af_commit()) the parent is terminated while the child continues. If the transaction is aborted either by child crashing or calling af_rollback() the child process terminates and the parent continues skipping the transaction code.
 
 # How to use it?
 Just include the atomic_fork header file into your project and it will work.
